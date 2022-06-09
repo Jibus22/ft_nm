@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/mman.h>
 #include <elf.h>
 
 #include "libft.h"
