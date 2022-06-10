@@ -42,12 +42,12 @@ int ft_nm_x32(void *file, size_t filesize) {
 }
 
 void print_sym(Elf64_Sym *Ssymtab, char *Sstrtab, int j) {
-  printf(
-      " [%d] - st_name: %d, st_info: %d, st_other: %d, st_shndx: %d, st_value: "
-      "%lu, st_size: %lu, name: %s\n",
-      j, Ssymtab[j].st_name, Ssymtab[j].st_info, Ssymtab[j].st_other,
-      Ssymtab[j].st_shndx, Ssymtab[j].st_value, Ssymtab[j].st_size,
-      &(Sstrtab[Ssymtab[j].st_name]));
+  printf("  [%2d] - Type: %d, Bind: %d, Visibility: %d -- ", j,
+         ELF64_ST_TYPE(Ssymtab[j].st_info), ELF64_ST_BIND(Ssymtab[j].st_info),
+         ELF64_ST_VISIBILITY(Ssymtab[j].st_other));
+  printf("st_shndx: %5d, st_value: %7lu, st_size: %4lu, name: %s\n",
+         Ssymtab[j].st_shndx, Ssymtab[j].st_value, Ssymtab[j].st_size,
+         &(Sstrtab[Ssymtab[j].st_name]));
 }
 
 int handle_symtab(void *file, Elf64_Ehdr *Ehdr, Elf64_Shdr *Shdrt, int symtab) {
