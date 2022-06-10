@@ -32,7 +32,7 @@ else
 endif
 
 ##### SRCS #####
-SRCS = $(addprefix $(SRCPATH)/, ft_nm.c)
+SRCS = $(addprefix $(SRCPATH)/, start.c ft_nm_x64.c ft_nm_x32.c print_debug.c)
 
 OBJ = $(SRCS:$(SRCPATH)/%.c=$(OBJPATH)/%.o)
 
