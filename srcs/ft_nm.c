@@ -3,14 +3,17 @@
 void print_Ehdr(Elf64_Ehdr *Ehdr) {
   printf(
       "e_version: %d, e_type: %d, e_machine: %d, e_shoff: %lu, e_shentsize: "
-      "%d, e_shnum: %d\n",
+      "%d, e_shnum: %d, e_entry: %lu, e_shstrndx: %d\n",
       Ehdr->e_version, Ehdr->e_type, Ehdr->e_machine, Ehdr->e_shoff,
-      Ehdr->e_shentsize, Ehdr->e_shnum);
+      Ehdr->e_shentsize, Ehdr->e_shnum, Ehdr->e_entry, Ehdr->e_shstrndx);
 }
 
-void print_Shdr(Elf64_Shdr *Shdr) {
-  printf("sh_type: %d, sh_addr: %lu, sh_offset: %lu, sh_size: %lu\n",
-         Shdr->sh_type, Shdr->sh_addr, Shdr->sh_offset, Shdr->sh_size);
+void print_Shdr(Elf64_Shdr *Shdr, int i) {
+  printf(
+      " [%d] - sh_name: %d, sh_type: %d, sh_addr: %lu, sh_offset: %lu, "
+      "sh_size: %lu, sh_entsize: %lu, sh_link: %d\n",
+      i, Shdr->sh_name, Shdr->sh_type, Shdr->sh_addr, Shdr->sh_offset,
+      Shdr->sh_size, Shdr->sh_entsize, Shdr->sh_link);
 }
 
 int exit_nm(int exit_status, int fd, void *file, size_t filesize) {
@@ -38,18 +41,55 @@ int ft_nm_x32(void *file, size_t filesize) {
   return EXIT_SUCCESS;
 }
 
+void print_sym(Elf64_Sym *Ssymtab, char *Sstrtab, int j) {
+  printf(
+      " [%d] - st_name: %d, st_info: %d, st_other: %d, st_shndx: %d, st_value: "
+      "%lu, st_size: %lu, name: %s\n",
+      j, Ssymtab[j].st_name, Ssymtab[j].st_info, Ssymtab[j].st_other,
+      Ssymtab[j].st_shndx, Ssymtab[j].st_value, Ssymtab[j].st_size,
+      &(Sstrtab[Ssymtab[j].st_name]));
+}
+
+int handle_symtab(void *file, Elf64_Ehdr *Ehdr, Elf64_Shdr *Shdrt, int symtab) {
+  int j = 0, strtab = Shdrt[symtab].sh_link;
+  char *Sstrtab;
+  Elf64_Sym *Ssymtab;
+
+  if (sizeof(*Ssymtab) != Shdrt[symtab].sh_entsize ||
+      Shdrt[symtab].sh_link >= Ehdr->e_shnum)
+    return EXIT_FAILURE;
+
+  Sstrtab = (char *)(file + Shdrt[strtab].sh_offset);
+  Ssymtab = file + Shdrt[symtab].sh_offset;
+
+  for (int i = 0; i < Shdrt[symtab].sh_size; i += sizeof(*Ssymtab)) {
+    print_sym(Ssymtab, Sstrtab, j);
+    j++;
+  }
+
+  return EXIT_SUCCESS;
+}
+
 int ft_nm_x64(void *file, size_t filesize) {
   Elf64_Ehdr Ehdr;
-  Elf64_Shdr *Shdr;
+  Elf64_Shdr *Shdrt;
 
   if (filesize < sizeof(Ehdr)) return EXIT_FAILURE;
   ft_memcpy(&Ehdr, file, sizeof(Ehdr));
-  if (filesize < Ehdr.e_shoff + sizeof(Shdr)) return EXIT_FAILURE;
+  if (!Ehdr.e_shnum || !Ehdr.e_shoff || Ehdr.e_version == EV_NONE ||
+      filesize < Ehdr.e_shoff + (sizeof(*Shdrt) * Ehdr.e_shnum) ||
+      Ehdr.e_shentsize != sizeof(*Shdrt))
+    return EXIT_FAILURE;
+
   print_Ehdr(&Ehdr);
-  /* ft_memcpy(&Shdr, file + Ehdr.e_shoff, sizeof(Shdr)); */
+  Shdrt = (Elf64_Shdr *)(file + Ehdr.e_shoff);
+
   for (int i = 0; i < Ehdr.e_shnum; i++) {
-    Shdr = (Elf64_Shdr *)(file + Ehdr.e_shoff + (Ehdr.e_shentsize * i));
-    print_Shdr(Shdr);
+    if (Shdrt[i].sh_type == SHT_SYMTAB) {
+      write(1, "YEAH SYMTAB HERE\n", 17);
+      handle_symtab(file, &Ehdr, Shdrt, i);
+    }
+    print_Shdr(&(Shdrt[i]), i);
   }
   return EXIT_SUCCESS;
 }
