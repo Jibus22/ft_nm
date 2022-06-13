@@ -1,38 +1,35 @@
 #include "ft_nm.h"
 
-static int format_buffer(Elf64_Sym *Ssymtab, char *symbol, char *Sstrtab) {
-  if (Ssymtab->st_shndx == SHN_ABS) return EXIT_SUCCESS;
-  if (Ssymtab->st_value)
-    sprintf(symbol, "%016lx %s\n", Ssymtab->st_value,
-        &Sstrtab[Ssymtab->st_name]);
-  else
-    sprintf(symbol, "%16c %s\n", ' ', &Sstrtab[Ssymtab->st_name]);
-  return EXIT_SUCCESS;
-}
-
-static int buffer_nm(Elf64_Sym *Ssymtab, char *Sstrtab, int j) {
-  char **symbol = (char **)malloc(j * sizeof(char **));
-  char *output_buf = (char *)malloc(j * 128 * sizeof(char));
-  int ret = 0;
+static int buffer_nm(Elf64_Shdr *Shdrt, const char *shstrtab,
+                     Elf64_Sym *Ssymtab, char *Sstrtab, int symb_nb) {
+  char **symbol = (char **)malloc(symb_nb * sizeof(char *));
+  char *output_buf = (char *)malloc(symb_nb * SYMBUFSIZE * sizeof(char));
+  int ret = 0, shstrtabndx;
 
   if (!symbol || !output_buf) return EXIT_FAILURE;
-  ft_bzero(output_buf, j * 128);
-  for (int i = 0; i < j; i++) {
-    symbol[i] = (char *)malloc(128);
+  ft_bzero(output_buf, symb_nb * SYMBUFSIZE);
+  for (int i = 0; i < symb_nb; i++) {
+    symbol[i] = (char *)malloc(SYMBUFSIZE);
     if (!symbol[i]) return EXIT_FAILURE;
-    ft_bzero(symbol[i], 128);
+    ft_bzero(symbol[i], SYMBUFSIZE);
   }
 
-  for (int i = 0; i < j; i++) format_buffer(&Ssymtab[i], symbol[i], Sstrtab);
+  /* starts from 1 bc 1st symbol is null */
+  for (int i = 1; i < symb_nb; i++) {
+    if (Ssymtab[i].st_shndx == SHN_ABS) continue;
+    shstrtabndx = Shdrt[Ssymtab[i].st_shndx].sh_name;
+    format_buffer(symbol[i], Ssymtab[i].st_value, &Sstrtab[Ssymtab[i].st_name],
+                  ELF64_ST_BIND(Ssymtab[i].st_info), &shstrtab[shstrtabndx]);
+  }
 
-  /* here some sorting */
+  /* here do some sorting */
 
-  for (int i = 0; i < j; i++)
-    ret += ft_strlcpy(output_buf + ret, symbol[i], 128);
+  for (int i = 0; i < symb_nb; i++)
+    ret += ft_strlcpy(output_buf + ret, symbol[i], SYMBUFSIZE);
 
   write(1, output_buf, ret);
 
-  for (int i = 0; i < j; i++) free(symbol[i]);
+  for (int i = 0; i < symb_nb; i++) free(symbol[i]);
   free(symbol);
   free(output_buf);
 
@@ -41,8 +38,8 @@ static int buffer_nm(Elf64_Sym *Ssymtab, char *Sstrtab, int j) {
 
 static int handle_symtab(void *file, Elf64_Ehdr *Ehdr, Elf64_Shdr *Shdrt,
                          int symtab, int filesize) {
-  int j = 0, strtab = Shdrt[symtab].sh_link;
-  char *Sstrtab;
+  int symb_nb = 0, strtab = Shdrt[symtab].sh_link;
+  char *Sstrtab, *Sshstrtab;
   Elf64_Sym *Ssymtab;
 
   if (sizeof(*Ssymtab) != Shdrt[symtab].sh_entsize ||
@@ -52,14 +49,15 @@ static int handle_symtab(void *file, Elf64_Ehdr *Ehdr, Elf64_Shdr *Shdrt,
     return EXIT_FAILURE;
 
   Sstrtab = (char *)(file + Shdrt[strtab].sh_offset);
+  Sshstrtab = (char *)(file + Shdrt[Ehdr->e_shstrndx].sh_offset);
   Ssymtab = file + Shdrt[symtab].sh_offset;
 
   for (int i = 0; i < Shdrt[symtab].sh_size; i += sizeof(*Ssymtab)) {
-    /* print_sym(Ssymtab, Sstrtab, j); */
-    j++;
+    /* print_sym(Ssymtab, Sstrtab, symb_nb); */
+    symb_nb++;
   }
 
-  buffer_nm(Ssymtab, Sstrtab, j);
+  buffer_nm(Shdrt, Sshstrtab, Ssymtab, Sstrtab, symb_nb);
 
   return EXIT_SUCCESS;
 }
