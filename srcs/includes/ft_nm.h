@@ -21,7 +21,7 @@ typedef struct {
 } s_nmTypename;
 
 /* nm processing */
-int ft_nm_x64(void *file, size_t filesize);
+int ft_nm_x64(const void *file, size_t filesize);
 int ft_nm_x32(void *file, size_t filesize);
 
 /* print_debug.c */

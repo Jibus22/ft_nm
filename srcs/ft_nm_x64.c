@@ -1,7 +1,8 @@
 #include "ft_nm.h"
 
-static int buffer_nm(Elf64_Shdr *Shdrt, const char *shstrtab,
-                     Elf64_Sym *Ssymtab, char *Sstrtab, int symb_nb) {
+static int buffer_nm(const Elf64_Shdr *Shdrt, const char *shstrtab,
+                     const Elf64_Sym *Ssymtab, const char *Sstrtab,
+                     int symb_nb) {
   char **symbol = (char **)malloc(symb_nb * sizeof(char *));
   char *output_buf = (char *)malloc(symb_nb * SYMBUFSIZE * sizeof(char));
   int ret = 0, shstrtabndx;
@@ -36,8 +37,8 @@ static int buffer_nm(Elf64_Shdr *Shdrt, const char *shstrtab,
   return EXIT_SUCCESS;
 }
 
-static int handle_symtab(void *file, Elf64_Ehdr *Ehdr, Elf64_Shdr *Shdrt,
-                         int symtab, int filesize) {
+static int handle_symtab(const void *file, const Elf64_Ehdr *Ehdr,
+                         const Elf64_Shdr *Shdrt, int symtab, int filesize) {
   int symb_nb = 0, strtab = Shdrt[symtab].sh_link;
   char *Sstrtab, *Sshstrtab;
   Elf64_Sym *Ssymtab;
@@ -50,7 +51,7 @@ static int handle_symtab(void *file, Elf64_Ehdr *Ehdr, Elf64_Shdr *Shdrt,
 
   Sstrtab = (char *)(file + Shdrt[strtab].sh_offset);
   Sshstrtab = (char *)(file + Shdrt[Ehdr->e_shstrndx].sh_offset);
-  Ssymtab = file + Shdrt[symtab].sh_offset;
+  Ssymtab = (Elf64_Sym *)(file + Shdrt[symtab].sh_offset);
 
   for (int i = 0; i < Shdrt[symtab].sh_size; i += sizeof(*Ssymtab)) {
     /* print_sym(Ssymtab, Sstrtab, symb_nb); */
@@ -62,7 +63,7 @@ static int handle_symtab(void *file, Elf64_Ehdr *Ehdr, Elf64_Shdr *Shdrt,
   return EXIT_SUCCESS;
 }
 
-int ft_nm_x64(void *file, size_t filesize) {
+int ft_nm_x64(const void *file, size_t filesize) {
   Elf64_Ehdr Ehdr;
   Elf64_Shdr *Shdrt;
   int symtab = 0;
