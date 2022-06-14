@@ -33,7 +33,7 @@ endif
 
 ##### SRCS #####
 SRCS = $(addprefix $(SRCPATH)/, start.c ft_nm_x64.c ft_nm_x32.c print_debug.c\
-			 shared.c)
+			 shared.c sorting.c)
 
 OBJ = $(SRCS:$(SRCPATH)/%.c=$(OBJPATH)/%.o)
 

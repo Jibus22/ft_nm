@@ -29,9 +29,12 @@ void print_sym(Elf64_Sym *Ssymtab, char *Sstrtab, int j);
 void print_Ehdr(Elf64_Ehdr *Ehdr);
 void print_Shdr(Elf64_Shdr *Shdr, int i);
 
+/* sorting.c */
+void asc_sort(char **symbol, int size);
+
 /* shared.c */
 void concat_address(char *dst, unsigned long n);
 void format_buffer(char *buf, unsigned long addr, const char *symname,
-		   int symbind, const char *sectionName);
+                   int symbind, const char *sectionName);
 
 #endif

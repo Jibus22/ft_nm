@@ -5,7 +5,7 @@ static int buffer_nm(const Elf64_Shdr *Shdrt, const char *shstrtab,
                      int symb_nb) {
   char **symbol = (char **)malloc(symb_nb * sizeof(char *));
   char *output_buf = (char *)malloc(symb_nb * SYMBUFSIZE * sizeof(char));
-  int ret = 0, shstrtabndx;
+  int ret = 0, j = 0, shstrtabndx;
 
   if (!symbol || !output_buf) return EXIT_FAILURE;
   ft_bzero(output_buf, symb_nb * SYMBUFSIZE);
@@ -17,15 +17,19 @@ static int buffer_nm(const Elf64_Shdr *Shdrt, const char *shstrtab,
 
   /* starts from 1 bc 1st symbol is null */
   for (int i = 1; i < symb_nb; i++) {
-    if (Ssymtab[i].st_shndx == SHN_ABS) continue;
+    if (Ssymtab[i].st_shndx == SHN_ABS ||
+        ELF64_ST_TYPE(Ssymtab[i].st_info) == STT_SECTION)
+      continue;
     shstrtabndx = Shdrt[Ssymtab[i].st_shndx].sh_name;
-    format_buffer(symbol[i], Ssymtab[i].st_value, &Sstrtab[Ssymtab[i].st_name],
+    format_buffer(symbol[j], Ssymtab[i].st_value, &Sstrtab[Ssymtab[i].st_name],
                   ELF64_ST_BIND(Ssymtab[i].st_info), &shstrtab[shstrtabndx]);
+    j++;
   }
 
   /* here do some sorting */
+  asc_sort(symbol, j);
 
-  for (int i = 0; i < symb_nb; i++)
+  for (int i = 0; i < j; i++)
     ret += ft_strlcpy(output_buf + ret, symbol[i], SYMBUFSIZE);
 
   write(1, output_buf, ret);

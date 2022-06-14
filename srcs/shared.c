@@ -30,7 +30,8 @@ static unsigned char getSymType(const char *Sname, int symbind,
     c = 'u';
   else
     for (int i = 0; i < NM_TYPE_NB; i++)
-      if (!ft_strncmp(Sname, symtype[i].sectionName, ft_strlen(Sname)))
+      if (!ft_strncmp(Sname, symtype[i].sectionName,
+                      ft_strlen(symtype[i].sectionName)))
         c = symtype[i].nmType;
   return ((c * (symbind == STB_LOCAL)) + ((c & '_') * (symbind == STB_GLOBAL)));
 }

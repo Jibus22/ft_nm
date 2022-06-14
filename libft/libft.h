@@ -6,7 +6,7 @@
 /*   By: jle-corr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/03 16:18:20 by jle-corr          #+#    #+#             */
-/*   Updated: 2021/03/20 16:55:34 by jle-corr         ###   ########.fr       */
+/*   Updated: 2022/06/14 18:20:37 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,8 @@ int			ft_isascii(int c);
 int			ft_isprint(int c);
 int			ft_toupper(int c);
 int			ft_tolower(int c);
+int 		ft_isupper(int c);
+int 		ft_islower(int c);
 
 /*
 **	string
