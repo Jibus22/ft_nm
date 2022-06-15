@@ -22,7 +22,8 @@ static int buffer_nm(const Elf64_Shdr *Shdrt, const char *shstrtab,
       continue;
     shstrtabndx = Shdrt[Ssymtab[i].st_shndx].sh_name;
     format_buffer(symbol[j], Ssymtab[i].st_value, &Sstrtab[Ssymtab[i].st_name],
-                  ELF64_ST_BIND(Ssymtab[i].st_info), &shstrtab[shstrtabndx]);
+                  Ssymtab[i].st_info, Ssymtab[i].st_shndx,
+                  &shstrtab[shstrtabndx]);
     j++;
   }
 

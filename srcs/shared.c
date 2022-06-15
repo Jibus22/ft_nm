@@ -14,33 +14,50 @@ void concat_address(char *dst, unsigned long n) {
   }
 }
 
-static unsigned char getSymType(const char *Sname, int symbind,
+static unsigned char getSymType(const char *Sname, int symbind, int symtype,
                                 unsigned long addr) {
   int c = '.';
-  s_nmTypename symtype[NM_TYPE_NB] = {
-      {'b', ".bss\0"},          {'t', ".text\0"},    {'t', ".init\0"},
-      {'t', ".fini\0"},         {'d', ".data\0"},    {'d', ".got.plt\0"},
-      {'d', ".init_array\0"},   {'r', ".rodata\0"},  {'r', ".eh_frame\0"},
-      {'r', ".eh_frame_hdr\0"}, {'d', ".dynamic\0"}, {'d', ".fini_array\0"},
+  s_nmTypename nmtype[NM_TYPE_NB] = {
+      {'b', ".bss\0"},
+      {'t', ".text\0"},
+      {'t', ".init\0"},
+      {'t', ".fini\0"},
+      {'d', ".data\0"},
+      {'d', ".got.plt\0"},
+      {'d', ".init_array\0"},
+      {'d', ".dynamic\0"},
+      {'d', ".fini_array\0"},
+      {'r', ".rodata\0"},
+      {'r', ".eh_frame\0"},
+      {'r', ".eh_frame_hdr\0"},
+      {'r', ".gcc_except_table\0"},
 
   };
 
-  if (symbind == STB_WEAK) return 'W' * (addr != 0) + 'w' * (!addr);
-  if (!addr)
+  if (symbind == STB_WEAK)
+    return (('W' * (addr != 0) + 'w' * (!addr)) *
+            (symtype == STT_FUNC || symtype == STT_NOTYPE)) +
+           (('V' * (addr != 0) + 'v' * (!addr)) * (symtype == STT_OBJECT));
+  if (!addr || !*Sname)
     c = 'u';
   else
-    for (int i = 0; i < NM_TYPE_NB; i++)
-      if (!ft_strncmp(Sname, symtype[i].sectionName,
-                      ft_strlen(symtype[i].sectionName)))
-        c = symtype[i].nmType;
+    for (int i = 0; i < NM_TYPE_NB; i++) {
+      if (!ft_strncmp(Sname, nmtype[i].sectionName,
+                      ft_strlen(nmtype[i].sectionName) + 1)) {
+        c = nmtype[i].nmType;
+        break;
+      }
+    }
   return ((c * (symbind == STB_LOCAL)) + ((c & '_') * (symbind == STB_GLOBAL)));
 }
 
 void format_buffer(char *buf, unsigned long addr, const char *symname,
-                   int symbind, const char *sectionName) {
-  char symtype = getSymType(sectionName, symbind, addr);
+                   unsigned char st_info, uint16_t st_shndx,
+                   const char *sectionName) {
+  char symtype = getSymType(sectionName, ELF64_ST_BIND(st_info),
+                            ELF64_ST_TYPE(st_info), addr);
 
-  if (addr) {
+  if (addr && st_shndx != STN_UNDEF) {
     ft_strlcpy(buf, "0000000000000000   ", SYMBUFSIZE);
     concat_address(buf, addr);
   } else

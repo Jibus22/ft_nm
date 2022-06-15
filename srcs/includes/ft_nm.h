@@ -12,12 +12,12 @@
 
 #include "libft.h"
 
-#define SYMBUFSIZE 128
-#define NM_TYPE_NB 12
+#define SYMBUFSIZE 320
+#define NM_TYPE_NB 14
 
 typedef struct {
   char nmType;
-  char sectionName[15];
+  char sectionName[31];
 } s_nmTypename;
 
 /* nm processing */
@@ -35,6 +35,7 @@ void asc_sort(char **symbol, int size);
 /* shared.c */
 void concat_address(char *dst, unsigned long n);
 void format_buffer(char *buf, unsigned long addr, const char *symname,
-                   int symbind, const char *sectionName);
+                   unsigned char st_info, uint16_t st_shndx,
+                   const char *sectionName);
 
 #endif
