@@ -31,7 +31,6 @@ static unsigned char getSymType(const char *Sname, int symbind, int symtype,
       {'r', ".eh_frame\0"},
       {'r', ".eh_frame_hdr\0"},
       {'r', ".gcc_except_table\0"},
-
   };
 
   if (symbind == STB_WEAK)
@@ -51,13 +50,13 @@ static unsigned char getSymType(const char *Sname, int symbind, int symtype,
   return ((c * (symbind == STB_LOCAL)) + ((c & '_') * (symbind == STB_GLOBAL)));
 }
 
-void format_buffer(char *buf, unsigned long addr, const char *symname,
+void format_output(char *buf, unsigned long addr, const char *symname,
                    unsigned char st_info, uint16_t st_shndx,
                    const char *sectionName) {
   char symtype = getSymType(sectionName, ELF64_ST_BIND(st_info),
                             ELF64_ST_TYPE(st_info), addr);
 
-  if (addr && st_shndx != STN_UNDEF) {
+  if (addr && st_shndx != SHN_UNDEF) {
     ft_strlcpy(buf, "0000000000000000   ", SYMBUFSIZE);
     concat_address(buf, addr);
   } else
