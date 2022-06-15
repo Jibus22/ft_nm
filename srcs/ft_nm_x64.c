@@ -33,7 +33,7 @@ static int buffer_nm(const Elf64_Shdr *Shdrt, const char *shstrtab,
   for (int i = 0; i < j; i++)
     ret += ft_strlcpy(output_buf + ret, symbol[i], SYMBUFSIZE);
 
-  write(1, output_buf, ret);
+  write(STDOUT_FILENO, output_buf, ret);
 
   for (int i = 0; i < symb_nb; i++) free(symbol[i]);
   free(symbol);
