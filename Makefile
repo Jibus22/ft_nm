@@ -48,13 +48,13 @@ mk_objdir:
 
 
 $(NAME): $(LIBFT) $(OBJ)
-	$(CC) -o $@ $(OBJ) $(LIBFT)
+	$(CC) $(CCFLAGS) -o $@ $(OBJ) $(LIBFT)
 
 $(LIBFT): 
 	@make -C $(LIBFTPATH)
 
 $(OBJPATH)/%.o: $(SRCPATH)/%.c $(HEADERS)
-	$(CC) $(CFLAGS) $(INC) -c $< -o $@
+	$(CC) $(CCFLAGS) $(INC) -c $< -o $@
 
 ### CLEAN ###
 .PHONY: sanitize clean fclean re

@@ -19,13 +19,13 @@ static int strcmp_nocase(const char *s1, const char *s2) {
   if (!s1[i] && !s2[j])
     return (((ft_islower(*(s1 - 2))) * (ft_isupper(*(s2 - 2)))) ||
             (*(s2 - 2) == 'D' && *(s1 - 2) == 'W') ||
-            *(s2 - 2) == 'W' && *(s1 - 2) == 'T');
+            (*(s2 - 2) == 'W' && *(s1 - 2) == 'T'));
   return c1 - c2;
 }
 
 void asc_sort(char **symbol, int size) {
   char *tmp;
-  int i = 0, j = 0;
+  int i = 0;
 
   if (size < 2) return;
   while (i + 1 < size) {

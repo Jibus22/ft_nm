@@ -2,10 +2,11 @@
 
 static int buffer_nm(const Elf64_Ehdr *Ehdr, const Elf64_Shdr *Shdrt,
                      const char *shstrtab, const Elf64_Sym *Ssymtab,
-                     const char *Sstrtab, int symb_nb, const int *smax) {
+                     const char *Sstrtab, int symb_nb,
+                     const unsigned int *smax) {
   char **symbol = (char **)malloc(symb_nb * sizeof(char *));
   char *output_buf = (char *)malloc(symb_nb * SYMBUFSIZE * sizeof(char));
-  int ret = 0, j = 0, shstrtabndx;
+  unsigned int ret = 0, j = 0, shstrtabndx;
 
   if (!symbol || !output_buf) return EXIT_FAILURE;
   ft_bzero(output_buf, symb_nb * SYMBUFSIZE);
@@ -34,7 +35,7 @@ static int buffer_nm(const Elf64_Ehdr *Ehdr, const Elf64_Shdr *Shdrt,
 
   /* here do some sorting */
   asc_sort(symbol, j);
-  for (int i = 0; i < j; i++)
+  for (unsigned int i = 0; i < j; i++)
     ret += ft_strlcpy(output_buf + ret, symbol[i], SYMBUFSIZE);
   write(STDOUT_FILENO, output_buf, ret);
 
@@ -43,8 +44,8 @@ static int buffer_nm(const Elf64_Ehdr *Ehdr, const Elf64_Shdr *Shdrt,
 }
 
 static int handle_symtab(const void *file, const Elf64_Ehdr *Ehdr,
-                         const Elf64_Shdr *Shdrt, int symtab, int filesize) {
-  int symb_nb = 0, strtab = Shdrt[symtab].sh_link, smax[2];
+                         const Elf64_Shdr *Shdrt, int symtab, size_t filesize) {
+  unsigned int symb_nb = 0, strtab = Shdrt[symtab].sh_link, smax[2];
   char *Sstrtab, *Sshstrtab;
   Elf64_Sym *Ssymtab;
 
@@ -63,7 +64,7 @@ static int handle_symtab(const void *file, const Elf64_Ehdr *Ehdr,
   smax[STRTAB] = Shdrt[strtab].sh_size;
   smax[SHSTRTAB] = Shdrt[Ehdr->e_shstrndx].sh_size;
 
-  for (int i = 0; i < Shdrt[symtab].sh_size; i += sizeof(*Ssymtab)) {
+  for (unsigned long i = 0; i < Shdrt[symtab].sh_size; i += sizeof(*Ssymtab)) {
     /* print_sym(Ssymtab, Sstrtab, symb_nb); */
     symb_nb++;
   }
