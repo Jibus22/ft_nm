@@ -23,13 +23,14 @@ static int strcmp_nocase(const char *s1, const char *s2) {
   return c1 - c2;
 }
 
-void asc_sort(char **symbol, int size) {
+void asc_sort(char **symbol, int size, const int arch) {
   char *tmp;
-  int i = 0;
+  int i = 0, name_offset = (arch / 4) + 3;
 
   if (size < 2) return;
   while (i + 1 < size) {
-    while (i >= 0 && strcmp_nocase(symbol[i] + 19, symbol[i + 1] + 19) > 0) {
+    while (i >= 0 && strcmp_nocase(symbol[i] + name_offset,
+                                   symbol[i + 1] + name_offset) > 0) {
       tmp = (char *)symbol[i];
       symbol[i] = symbol[i + 1];
       symbol[i + 1] = tmp;

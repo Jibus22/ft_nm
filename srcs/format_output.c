@@ -1,12 +1,12 @@
 #include "ft_nm.h"
 
-void concat_address(char *dst, unsigned long n) {
+static void concat_address(char *dst, unsigned long n, const int arch) {
   unsigned long e;
   short int res;
   int i = 1, shift;
 
   for (e = n / 16; e; i++) e /= 16;
-  shift = 16 - i;
+  shift = (arch == 64 ? 16 : 8) - i;
   while (i--) {
     res = ((n / ft_pow(16, e++)) % 16);
     res = ((res + 48) * (res < 10)) + ((res + 87) * (res >= 10));
@@ -37,7 +37,7 @@ static unsigned char getSymType(const char *Sname, int symbind, int symtype,
     return (('W' * (addr != 0) + 'w' * (!addr)) *
             (symtype == STT_FUNC || symtype == STT_NOTYPE)) +
            (('V' * (addr != 0) + 'v' * (!addr)) * (symtype == STT_OBJECT));
-  if (!addr || !*Sname)
+  if (!*Sname)
     c = 'u';
   else
     for (int i = 0; i < NM_TYPE_NB; i++) {
@@ -47,21 +47,26 @@ static unsigned char getSymType(const char *Sname, int symbind, int symtype,
         break;
       }
     }
+  if (c == '.')
+    if (!ft_strncmp(Sname, ".rodata", 7)) c = 'r';
   return ((c * (symbind == STB_LOCAL)) + ((c & '_') * (symbind == STB_GLOBAL)));
 }
 
 void format_output(char *buf, unsigned long addr, const char *symname,
                    unsigned char st_info, uint16_t st_shndx,
-                   const char *sectionName) {
+                   const char *sectionName, const int arch) {
   char symtype = getSymType(sectionName, ELF64_ST_BIND(st_info),
                             ELF64_ST_TYPE(st_info), addr);
 
-  if (addr && st_shndx != SHN_UNDEF) {
-    ft_strlcpy(buf, "0000000000000000   ", SYMBUFSIZE);
-    concat_address(buf, addr);
-  } else
-    ft_strlcpy(buf, "                   ", SYMBUFSIZE);
-  buf[17] = symtype;
+  if (st_shndx != SHN_UNDEF) {
+    ft_strlcpy(buf, "0000000000000000", (arch / 4) + 1);
+    ft_strlcat(buf, "   ", SYMBUFSIZE);
+    concat_address(buf, addr, arch);
+  } else {
+    ft_strlcpy(buf, "                ", (arch / 4) + 1);
+    ft_strlcat(buf, "   ", SYMBUFSIZE);
+  }
+  buf[(arch / 4) + 1] = symtype;
   ft_strlcat(buf, symname, SYMBUFSIZE);
   ft_strlcat(buf, "\n", SYMBUFSIZE);
 }

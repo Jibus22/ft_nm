@@ -29,12 +29,12 @@ static int buffer_nm(const Elf64_Ehdr *Ehdr, const Elf64_Shdr *Shdrt,
       return EXIT_FAILURE;
     format_output(symbol[j], Ssymtab[i].st_value, &Sstrtab[Ssymtab[i].st_name],
                   Ssymtab[i].st_info, Ssymtab[i].st_shndx,
-                  &shstrtab[shstrtabndx]);
+                  &shstrtab[shstrtabndx], 64);
     j++;
   }
 
   /* here do some sorting */
-  asc_sort(symbol, j);
+  asc_sort(symbol, j, 64);
   for (unsigned int i = 0; i < j; i++)
     ret += ft_strlcpy(output_buf + ret, symbol[i], SYMBUFSIZE);
   write(STDOUT_FILENO, output_buf, ret);
@@ -70,6 +70,7 @@ static int handle_symtab(const void *file, const Elf64_Ehdr *Ehdr,
   }
 
   return buffer_nm(Ehdr, Shdrt, Sshstrtab, Ssymtab, Sstrtab, symb_nb, smax);
+  return EXIT_SUCCESS;
 }
 
 int ft_nm_x64(const void *file, size_t filesize) {
