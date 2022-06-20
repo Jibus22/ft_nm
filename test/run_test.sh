@@ -1,4 +1,16 @@
 #!/bin/bash
+# Ansi color code variables
+red="\e[0;91m"
+blue="\e[0;94m"
+expand_bg="\e[K"
+blue_bg="\e[0;104m${expand_bg}"
+red_bg="\e[0;101m${expand_bg}"
+green_bg="\e[0;102m${expand_bg}"
+green="\e[0;92m"
+white="\e[0;97m"
+bold="\e[1m"
+uline="\e[4m"
+reset="\e[0m"
 
 ##### PATH #####
 curr_dir=$PWD
@@ -29,15 +41,13 @@ objs64=($OBJ*_x64.o)
 objs32=($OBJ*_x32.o)
 
 
-help () {
-	echo "
- usage:  ./run_test.sh -[blo]
+print_help () {
+	echo "usage:  ./run_test.sh -[blo]
 
-   --help  prints this help
-   -b      test binaries
-   -l      test libraries
-   -o      test objects
-";
+  --help  prints this help
+  -b      test binaries
+  -l      test libraries
+  -o      test objects";
 }
 
 run_comparison () {
@@ -49,9 +59,9 @@ run_comparison () {
 
 		echo -n "$name: "
 
-		./ft_nm $str > $ft_res
+		./ft_nm $str 1> $ft_res 2> /dev/null
 		ftret=$?
-		nm $str > $res
+		nm $str 1> $res 2> /dev/null
 		ret=$?
 		diff $ft_res $res > $mylog
 
@@ -59,10 +69,10 @@ run_comparison () {
 			echo "bad return value: ft_nm->$ftret - nm->$ret" >> $mylog ; fi
 		count=$(wc -c < $mylog)
 		if [ $count == "0" ]; then
-			echo "OK!";
+			echo -e "${green}OK! ✅ ${reset}";
 			rm $mylog $ft_res $res;
 		else
-			echo "KO! check this-> $mylog";
+			echo -e "${red}KO! ❌ ${blue} check this-> ${white}$mylog${reset}";
 		fi
 	done
 }
@@ -78,6 +88,6 @@ elif [ "$1" == "-l" ];then
 elif [ "$1" == "-o" ]; then
 	run_comparison ${objs64[@]};
 	run_comparison ${objs32[@]};
-elif [ "$1" == "--help" ]; then help;
-else help;
+elif [ "$1" == "--help" ]; then print_help;
+else print_help;
 fi
