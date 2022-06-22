@@ -6,13 +6,13 @@
 #    By: jle-corr <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/12/11 04:58:03 by jle-corr          #+#    #+#              #
-#    Updated: 2022/06/14 18:20:59 by user42           ###   ########.fr        #
+#    Updated: 2022/06/23 00:47:48 by user42           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
-DEPS = libft.h
+DEPS = libft.h ft_rbt.h
 OBJDIR = libftobj
 
 SRC = ft_atoi.c ft_bzero.c ft_calloc.c ft_isalnum.c ft_isalpha.c ft_isascii.c \
@@ -27,7 +27,7 @@ SRC = ft_atoi.c ft_bzero.c ft_calloc.c ft_isalnum.c ft_isalpha.c ft_isascii.c \
 		ft_strncpy.c get_next_line.c join_newstr.c ft_freetab.c\
 		ft_lstnew.c ft_lstadd_front.c ft_lstsize.c ft_lstlast.c \
 		ft_lstadd_back.c ft_lstclear.c ft_lstdelone.c ft_lstiter.c \
-		ft_lstmap.c ft_isupper.c ft_islower.c\
+		ft_lstmap.c ft_rbt.c ft_isupper.c ft_islower.c\
 
 
 OBJ = $(SRC:%.c=$(OBJDIR)/%.o)
