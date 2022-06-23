@@ -42,15 +42,29 @@ objs32=($OBJ*_x32.o)
 
 
 print_help () {
-	echo "usage:  ./run_test.sh -[blo]
+	echo "usage:  ./run_test.sh [ -bloa ] [ --bonus [ -agurp ] ]
 
   --help  prints this help
+  OPTIONS:
+  -a      test lib/obj/bin
   -b      test binaries
   -l      test libraries
-  -o      test objects";
+  -o      test objects
+
+  BONUS:
+  test with specified flag ex ./run_test.sh --bonus -a
+  refer to man(1) nm for mor details";
 }
 
 run_comparison () {
+	local arg="$1"
+
+	if [ "$1" == "-a" -o "$1" == "-g" -o "$1" == "-u" -o \
+		"$1" == "-r" -o "$1" == "-p" ]; then
+		shift 1;
+	else arg="";
+	fi
+
 	for str in "$@"; do
 		name=${str##*/}
 		mylog=$LOG"diff_"$name".txt"
@@ -59,9 +73,9 @@ run_comparison () {
 
 		echo -n "$name: "
 
-		./ft_nm $str 1> $ft_res 2> /dev/null
+		./ft_nm $arg $str 1> $ft_res 2> /dev/null
 		ftret=$?
-		nm $str 1> $res 2> /dev/null
+		nm $arg $str 1> $res 2> /dev/null
 		ret=$?
 		diff $ft_res $res > $mylog
 
@@ -80,14 +94,20 @@ run_comparison () {
 rm -f $LOG*.txt
 
 if [ "$1" == "-b" ]; then
-	run_comparison ${bins64[@]};
-	run_comparison ${bins32[@]};
+	run_comparison ${bins64[@]} ${bins32[@]};
 elif [ "$1" == "-l" ];then
-	run_comparison ${libs64[@]};
-	run_comparison ${libs32[@]};
+	run_comparison ${libs64[@]} ${libs32[@]};
 elif [ "$1" == "-o" ]; then
-	run_comparison ${objs64[@]};
-	run_comparison ${objs32[@]};
+	run_comparison ${objs64[@]} ${objs32[@]};
+elif [ "$1" == "-a" ]; then
+	run_comparison ${objs64[@]} ${objs32[@]} ${libs64[@]} ${libs32[@]} \
+		${bins64[@]} ${bins32[@]};
+elif [ "$1" == "--bonus" ]; then
+	if [ "$2" == "" ]; then
+		print_help;
+	else run_comparison "$2" ${objs64[@]} ${objs32[@]} ${libs64[@]} ${libs32[@]} \
+		${bins64[@]} ${bins32[@]};
+	fi
 elif [ "$1" == "--help" ]; then print_help;
 else print_help;
 fi

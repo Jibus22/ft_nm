@@ -29,8 +29,10 @@ static int buffer_nm(const Elf32_Ehdr *Ehdr, const Elf32_Shdr *Shdrt,
     j++;
   }
 
-  ret = rbt_to_buf(root, output_buf, 0);
-  write(STDOUT_FILENO, output_buf, ret);
+  if (!getargs(ARG_P)) {
+    ret = rbt_to_buf(root, output_buf, 0);
+    write(STDOUT_FILENO, output_buf, ret);
+  }
 
   destroy_rbt(root);
   free(output_buf);

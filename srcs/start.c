@@ -37,11 +37,18 @@ static int check_elf_ident(char *file, int *arch) {
           (file[EI_VERSION] != EV_CURRENT));
 }
 
-static int ft_nm(int ac, char *av) {
+static int is_arg(const char *s) {
+  return ((!ft_strncmp("-a\0", s, 3)) || (!ft_strncmp("-g\0", s, 3)) ||
+          (!ft_strncmp("-u\0", s, 3)) || (!ft_strncmp("-r\0", s, 3)) ||
+          (!ft_strncmp("-p\0", s, 3)));
+}
+
+static int ft_nm(int ac, char *av, int j) {
   int ret, arch, fd = -1;
   struct stat statbuf;
   void *file;
 
+  if (is_arg(av)) return EXIT_SUCCESS;
   if ((fd = open(av, O_RDONLY)) == -1)
     return exit_nm(EXIT_FAILURE, fd, NULL, 0, av, "No such file\n");
   if (fstat(fd, &statbuf) == -1)
@@ -54,7 +61,7 @@ static int ft_nm(int ac, char *av) {
   if (check_elf_ident(file, &arch) > 0)
     return exit_nm(EXIT_FAILURE, fd, file, statbuf.st_size, av,
                    "file format not recognized\n");
-  if (ac > 2) output_filename(av);
+  if (ac - j > 2) output_filename(av);
   if (arch == ELFCLASS32)
     ret = ft_nm_x32(file, statbuf.st_size);
   else
@@ -62,13 +69,33 @@ static int ft_nm(int ac, char *av) {
   return exit_nm(ret, fd, file, statbuf.st_size, NULL, NULL);
 }
 
-int main(int ac, char **av) {
-  int ret = 0;
+static int init_args(int ac, char **av) {
+  int j = 0;
+  e_arg nm_args = 0;
+  t_args arg_tuple = {{"-a\0", "-g\0", "-u\0", "-r\0", "-p\0"},
+                      {ARG_A, ARG_G, ARG_U, ARG_R, ARG_P}};
 
-  if (ac == 1)
-    ret += ft_nm(ac, "a.out");
+  for (int i = 1; i < ac; i++) {
+    if (ft_strlen(av[i]) > 2) continue;
+    for (int k = 0; k < 5; k++) {
+      if (!ft_strncmp(arg_tuple.arg_name[k], av[i], 3)) {
+        nm_args |= arg_tuple.arg_flag[k];
+        j++;
+      }
+    }
+  }
+  getargs(nm_args);
+  return j;
+}
+
+int main(int ac, char **av) {
+  int ret = 0, j;
+
+  j = init_args(ac, av);
+  if (ac - j == 1)
+    ret += ft_nm(ac, "a.out", j);
   else
-    for (int i = 1; i < ac; i++) ret += ft_nm(ac, av[i]);
+    for (int i = 1; i < ac; i++) ret += ft_nm(ac, av[i], j);
 
   return ret;
 }

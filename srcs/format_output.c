@@ -52,6 +52,27 @@ static unsigned char getSymType(const char *Sname, int symbind, int symtype,
   return ((c * (symbind == STB_LOCAL)) + ((c & '_') * (symbind == STB_GLOBAL)));
 }
 
+static void arg_filter(t_rbt **root, char *buf, int arch) {
+  if (getargs(ARG_U) &&
+      (buf[(arch / 4) + 1] != 'U' && buf[(arch / 4) + 1] != 'w')) {
+    free(buf);
+    buf = NULL;
+  } else if (getargs(ARG_G) &&
+             (ft_islower(buf[(arch / 4) + 1]) && buf[(arch / 4) + 1] != 'w')) {
+    free(buf);
+    buf = NULL;
+  }
+  if (!buf) return;
+  if (getargs(ARG_P)) {
+    write(STDOUT_FILENO, buf, ft_strlen(buf));
+    free(buf);
+    buf = NULL;
+  } else if (getargs(ARG_R))
+    *root = ft_rbt_insert(*root, buf, strcmp_nocase_desc);
+  else
+    *root = ft_rbt_insert(*root, buf, strcmp_nocase_asc);
+}
+
 void format_output(t_rbt **root, unsigned long addr, const char *symname,
                    unsigned char st_info, uint16_t st_shndx,
                    const char *sectionName, const int arch) {
@@ -71,5 +92,5 @@ void format_output(t_rbt **root, unsigned long addr, const char *symname,
   buf[(arch / 4) + 1] = symtype;
   ft_strlcat(buf, symname, SYMBUFSIZE);
   ft_strlcat(buf, "\n", SYMBUFSIZE);
-  *root = ft_rbt_insert(*root, buf, strcmp_nocase_asc);
+  arg_filter(root, buf, arch);
 }

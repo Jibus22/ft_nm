@@ -37,3 +37,7 @@ static int strcmp_nocase(const char *s1, const char *s2) {
 int strcmp_nocase_asc(const void *s1, const void *s2) {
   return strcmp_nocase((char *)s1, (char *)s2);
 }
+
+int strcmp_nocase_desc(const void *s1, const void *s2) {
+  return strcmp_nocase((char *)s2, (char *)s1);
+}

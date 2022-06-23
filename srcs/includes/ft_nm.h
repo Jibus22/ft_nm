@@ -26,6 +26,20 @@ typedef struct {
   char sectionName[31];
 } s_nmTypename;
 
+typedef enum {
+  ARG_A = 1 << 0,
+  ARG_G = 1 << 1,
+  ARG_U = 1 << 2,
+  ARG_R = 1 << 3,
+  ARG_P = 1 << 4,
+} e_arg;
+
+#define NM_MAXARGS 5
+typedef struct s_args {
+  char arg_name[NM_MAXARGS][3];
+  int arg_flag[NM_MAXARGS];
+} t_args;
+
 /* nm processing */
 int ft_nm_x64(const void *file, size_t filesize);
 int ft_nm_x32(const void *file, size_t filesize);
@@ -37,6 +51,7 @@ void print_Shdr(Elf64_Shdr *Shdr, int i);
 
 /* sorting.c */
 int strcmp_nocase_asc(const void *s1, const void *s2);
+int strcmp_nocase_desc(const void *s1, const void *s2);
 
 /* format_output.c */
 void format_output(t_rbt **root, unsigned long addr, const char *symname,
@@ -46,5 +61,6 @@ void format_output(t_rbt **root, unsigned long addr, const char *symname,
 /* shared.c */
 int is_special_section_indice(uint16_t section_index);
 unsigned int rbt_to_buf(t_rbt *node, char *output_buf, unsigned int ret);
+bool getargs(e_arg env);
 
 #endif
