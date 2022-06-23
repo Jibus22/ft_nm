@@ -36,15 +36,15 @@ void print_Ehdr(Elf64_Ehdr *Ehdr);
 void print_Shdr(Elf64_Shdr *Shdr, int i);
 
 /* sorting.c */
-void asc_sort(char **symbol, int size, const int arch);
+int strcmp_nocase_asc(const void *s1, const void *s2);
 
 /* format_output.c */
-void format_output(char *buf, unsigned long addr, const char *symname,
+void format_output(t_rbt **root, unsigned long addr, const char *symname,
                    unsigned char st_info, uint16_t st_shndx,
                    const char *sectionName, const int arch);
 
 /* shared.c */
 int is_special_section_indice(uint16_t section_index);
-void destroy_buffer(char **symbol, char *output_buf, int symb_nb);
+void rbt_to_buf(t_rbt *node, char *output_buf, size_t bufsize);
 
 #endif

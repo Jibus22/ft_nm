@@ -1,8 +1,17 @@
 #include "ft_nm.h"
 
+static int skip_address(const char *s) {
+  int i = 0;
+
+  while (ft_isalnum(s[i]) && s[i] != '\n') i++;
+  while (s[i] == ' ' && s[i] != '\n') i++;
+  i += 2;
+  return i;
+}
+
 static int strcmp_nocase(const char *s1, const char *s2) {
   char c1 = 0, c2 = 0;
-  int j = 0, i = 0;
+  int a = skip_address(s1), b = skip_address(s2), i = a, j = b, ret;
 
   while (s1[i] && s2[j] && (c1 == c2)) {
     while (!ft_isalnum(s1[i]) && s1[i] != '\n') i++;
@@ -16,26 +25,15 @@ static int strcmp_nocase(const char *s1, const char *s2) {
     i++;
     j++;
   }
-  if (!s1[i] && !s2[j])
-    return (((ft_islower(*(s1 - 2))) * (ft_isupper(*(s2 - 2)))) ||
-            (*(s2 - 2) == 'D' && *(s1 - 2) == 'W') ||
-            (*(s2 - 2) == 'W' && *(s1 - 2) == 'T'));
+  if (!s1[i] && !s2[j]) {
+    ret = (((ft_islower(s1[a - 2])) * (ft_isupper(s2[b - 2]))) ||
+           (s2[b - 2] == 'D' && s1[a - 2] == 'W') ||
+           (s2[b - 2] == 'W' && s1[a - 2] == 'T'));
+    return (ret > 0 ? ret : -1);
+  }
   return c1 - c2;
 }
 
-void asc_sort(char **symbol, int size, const int arch) {
-  char *tmp;
-  int i = 0, name_offset = (arch / 4) + 3;
-
-  if (size < 2) return;
-  while (i + 1 < size) {
-    while (i >= 0 && strcmp_nocase(symbol[i] + name_offset,
-                                   symbol[i + 1] + name_offset) > 0) {
-      tmp = (char *)symbol[i];
-      symbol[i] = symbol[i + 1];
-      symbol[i + 1] = tmp;
-      i--;
-    }
-    i++;
-  }
+int strcmp_nocase_asc(const void *s1, const void *s2) {
+  return strcmp_nocase((char *)s1, (char *)s2);
 }

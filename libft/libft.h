@@ -6,7 +6,7 @@
 /*   By: jle-corr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/03 16:18:20 by jle-corr          #+#    #+#             */
-/*   Updated: 2022/06/23 00:49:23 by user42           ###   ########.fr       */
+/*   Updated: 2022/06/23 01:09:26 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <sys/stat.h>
+# include "ft_rbt.h"
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 20

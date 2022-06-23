@@ -52,12 +52,14 @@ static unsigned char getSymType(const char *Sname, int symbind, int symtype,
   return ((c * (symbind == STB_LOCAL)) + ((c & '_') * (symbind == STB_GLOBAL)));
 }
 
-void format_output(char *buf, unsigned long addr, const char *symname,
+void format_output(t_rbt **root, unsigned long addr, const char *symname,
                    unsigned char st_info, uint16_t st_shndx,
                    const char *sectionName, const int arch) {
+  char *buf = (char *)malloc(SYMBUFSIZE * sizeof(char));
   char symtype = getSymType(sectionName, ELF64_ST_BIND(st_info),
                             ELF64_ST_TYPE(st_info), addr);
 
+  ft_bzero(buf, SYMBUFSIZE * sizeof(char));
   if (st_shndx != SHN_UNDEF) {
     ft_strlcpy(buf, "0000000000000000", (arch / 4) + 1);
     ft_strlcat(buf, "   ", SYMBUFSIZE);
@@ -69,4 +71,5 @@ void format_output(char *buf, unsigned long addr, const char *symname,
   buf[(arch / 4) + 1] = symtype;
   ft_strlcat(buf, symname, SYMBUFSIZE);
   ft_strlcat(buf, "\n", SYMBUFSIZE);
+  *root = ft_rbt_insert(*root, buf, strcmp_nocase_asc);
 }

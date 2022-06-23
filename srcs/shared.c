@@ -8,8 +8,10 @@ int is_special_section_indice(uint16_t section_index) {
           section_index == SHN_XINDEX || section_index == SHN_HIRESERVE);
 }
 
-void destroy_buffer(char **symbol, char *output_buf, int symb_nb) {
-  for (int i = 0; i < symb_nb; i++) free(symbol[i]);
-  free(symbol);
-  free(output_buf);
+void rbt_to_buf(t_rbt *node, char *output_buf, size_t bufsize) {
+  if (node) {
+    rbt_to_buf(node->left, output_buf, bufsize);
+    ft_strlcat(output_buf, (char *)node->value, bufsize);
+    rbt_to_buf(node->right, output_buf, bufsize);
+  }
 }

@@ -4,17 +4,13 @@ static int buffer_nm(const Elf32_Ehdr *Ehdr, const Elf32_Shdr *Shdrt,
                      const char *shstrtab, const Elf32_Sym *Ssymtab,
                      const char *Sstrtab, int symb_nb,
                      const unsigned int *smax) {
-  char **symbol = (char **)malloc(symb_nb * sizeof(char *));
-  char *output_buf = (char *)malloc(symb_nb * SYMBUFSIZE * sizeof(char));
-  unsigned int ret = 0, j = 0, shstrtabndx;
+  unsigned int j = 0, shstrtabndx;
+  size_t bufsize = symb_nb * SYMBUFSIZE * sizeof(char);
+  char *output_buf = (char *)malloc(bufsize);
+  t_rbt *root = NULL;
 
-  if (!symbol || !output_buf) return EXIT_FAILURE;
+  if (!output_buf) return EXIT_FAILURE;
   ft_bzero(output_buf, symb_nb * SYMBUFSIZE);
-  for (int i = 0; i < symb_nb; i++) {
-    symbol[i] = (char *)malloc(SYMBUFSIZE);
-    if (!symbol[i]) return EXIT_FAILURE;
-    ft_bzero(symbol[i], SYMBUFSIZE);
-  }
 
   /* starts from 1 bc 1st symbol is null */
   for (int i = 1; i < symb_nb; i++) {
@@ -27,19 +23,17 @@ static int buffer_nm(const Elf32_Ehdr *Ehdr, const Elf32_Shdr *Shdrt,
     shstrtabndx = Shdrt[Ssymtab[i].st_shndx].sh_name;
     if (shstrtabndx > smax[SHSTRTAB] || Ssymtab[i].st_name > smax[STRTAB])
       return EXIT_FAILURE;
-    format_output(symbol[j], Ssymtab[i].st_value, &Sstrtab[Ssymtab[i].st_name],
+    format_output(&root, Ssymtab[i].st_value, &Sstrtab[Ssymtab[i].st_name],
                   Ssymtab[i].st_info, Ssymtab[i].st_shndx,
                   &shstrtab[shstrtabndx], 32);
     j++;
   }
 
-  /* here do some sorting */
-  asc_sort(symbol, j, 32);
-  for (unsigned int i = 0; i < j; i++)
-    ret += ft_strlcpy(output_buf + ret, symbol[i], SYMBUFSIZE);
-  write(STDOUT_FILENO, output_buf, ret);
+  rbt_to_buf(root, output_buf, bufsize);
+  write(STDOUT_FILENO, output_buf, ft_strlen(output_buf));
 
-  destroy_buffer(symbol, output_buf, symb_nb);
+  destroy_rbt(root);
+  free(output_buf);
   return EXIT_SUCCESS;
 }
 
