@@ -12,7 +12,7 @@ void destroy_rbt(t_rbt *node) {
 void print_rbt_inorder(t_rbt *node) {
   if (node) {
     print_rbt_inorder(node->left);
-    printf("- %s.\n", (char *)node->value);
+    printf("%s", (char *)node->value);
     print_rbt_inorder(node->right);
   }
 }

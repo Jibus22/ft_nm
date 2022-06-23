@@ -8,10 +8,15 @@ int is_special_section_indice(uint16_t section_index) {
           section_index == SHN_XINDEX || section_index == SHN_HIRESERVE);
 }
 
-void rbt_to_buf(t_rbt *node, char *output_buf, size_t bufsize) {
-  if (node) {
-    rbt_to_buf(node->left, output_buf, bufsize);
-    ft_strlcat(output_buf, (char *)node->value, bufsize);
-    rbt_to_buf(node->right, output_buf, bufsize);
-  }
+unsigned int rbt_to_buf(t_rbt *node, char *output_buf, unsigned int ret) {
+  unsigned int ret2;
+
+  if (!node) return 0;
+
+  ret2 = rbt_to_buf(node->left, output_buf, ret);
+  if (ret2) ret = ret2;
+  ret += ft_strlcpy(output_buf + ret, (char *)node->value, SYMBUFSIZE);
+  ret2 = rbt_to_buf(node->right, output_buf, ret);
+  if (ret2) ret = ret2;
+  return ret;
 }

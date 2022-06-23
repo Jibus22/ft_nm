@@ -45,6 +45,6 @@ void format_output(t_rbt **root, unsigned long addr, const char *symname,
 
 /* shared.c */
 int is_special_section_indice(uint16_t section_index);
-void rbt_to_buf(t_rbt *node, char *output_buf, size_t bufsize);
+unsigned int rbt_to_buf(t_rbt *node, char *output_buf, unsigned int ret);
 
 #endif

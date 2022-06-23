@@ -4,7 +4,7 @@ static int buffer_nm(const Elf64_Ehdr *Ehdr, const Elf64_Shdr *Shdrt,
                      const char *shstrtab, const Elf64_Sym *Ssymtab,
                      const char *Sstrtab, int symb_nb,
                      const unsigned int *smax) {
-  unsigned int j = 0, shstrtabndx;
+  unsigned int j = 0, ret, shstrtabndx;
   size_t bufsize = symb_nb * SYMBUFSIZE * sizeof(char);
   char *output_buf = (char *)malloc(bufsize);
   t_rbt *root = NULL;
@@ -29,8 +29,8 @@ static int buffer_nm(const Elf64_Ehdr *Ehdr, const Elf64_Shdr *Shdrt,
     j++;
   }
 
-  rbt_to_buf(root, output_buf, bufsize);
-  write(STDOUT_FILENO, output_buf, ft_strlen(output_buf));
+  ret = rbt_to_buf(root, output_buf, 0);
+  write(STDOUT_FILENO, output_buf, ret);
 
   destroy_rbt(root);
   free(output_buf);
