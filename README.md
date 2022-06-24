@@ -19,7 +19,7 @@ In computing, the Executable and Linkable Format (ELF, formerly named Extensible
 
 ### ELF layout
 
-![ELF_layout.png](./_resources/ELF_layout.png)
+![ELF_layout.png](./_resources/ELF_layout.jpg)
 _An ELF file has two views: the program header shows the segments used at run time, whereas the section header lists the set of sections._
 
 - elf header can be found here: `/usr/include/elf.h` \*
@@ -108,4 +108,3 @@ The output is sorted in alphanum order, case-insensitive and skipping non-alphan
 - [x] u: Display only undefined symbols (those external to each object file).
 - [x] r: Reverse the order of the sort (whether numeric or alphabetic); let the last come first.
 - [x] p: Do not bother to sort the symbols in any order; print them in the order encountered.
-
