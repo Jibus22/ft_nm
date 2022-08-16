@@ -14,7 +14,7 @@
 
 /* values for output buffer and display */
 #define SYMBUFSIZE 320
-#define NM_TYPE_NB 14
+#define NM_TYPE_NB 15
 
 /* values to hold some data relative to .strtab and .shstrtab */
 #define STRTAB 0

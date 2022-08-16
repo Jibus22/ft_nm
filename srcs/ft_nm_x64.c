@@ -84,7 +84,12 @@ int ft_nm_x64(const void *file, size_t filesize) {
   /* print_Ehdr(&Ehdr); */
   Shdrt = (Elf64_Shdr *)(file + Ehdr.e_shoff);
 
-  for (int i = 0; i < Ehdr.e_shnum && symtab == -1; i++) {
+  if (Shdrt[0].sh_size != 0 && Shdrt[0].sh_offset != 0) return EXIT_FAILURE;
+  if (Ehdr.e_shstrndx >= Ehdr.e_shnum ||
+      Shdrt[Ehdr.e_shstrndx].sh_type != SHT_STRTAB)
+    return EXIT_SUCCESS;
+  for (int i = 0; i < Ehdr.e_shnum; i++) {
+    if (Shdrt[i].sh_name > Shdrt[Ehdr.e_shstrndx].sh_size) return EXIT_FAILURE;
     if (Shdrt[i].sh_type == SHT_SYMTAB) symtab = i;
     /* print_Shdr(&(Shdrt[i]), i); */
   }

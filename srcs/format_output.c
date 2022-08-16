@@ -31,6 +31,7 @@ static unsigned char getSymType(const char *Sname, int symbind, int symtype,
       {'r', ".eh_frame\0"},
       {'r', ".eh_frame_hdr\0"},
       {'r', ".gcc_except_table\0"},
+      {'r', ".interp\0"},
   };
 
   if (symbind == STB_WEAK)
