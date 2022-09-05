@@ -26,9 +26,9 @@ static int strcmp_nocase(const char *s1, const char *s2) {
     j++;
   }
   if (!s1[i] && !s2[j]) {
-    ret = (((ft_islower(s1[a - 2])) * (ft_isupper(s2[b - 2]))) ||
+    ret = (((ft_islower(s2[b - 2])) * (ft_isupper(s1[a - 2]))) ||
            (s2[b - 2] == 'D' && s1[a - 2] == 'W') ||
-           (s2[b - 2] == 'W' && s1[a - 2] == 'T'));
+           (s1[a - 2] == 'W' && s2[b - 2] == 'T'));
     return (ret > 0 ? ret : -1);
   }
   return c1 - c2;

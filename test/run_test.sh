@@ -79,6 +79,12 @@ run_comparison () {
 		ret=$?
 		diff $ft_res $res > $mylog
 
+		line=$(head -n 2 $mylog | grep "bfd plugin:")
+		if [ ! -z "$line" ]; then
+			echo "PROCESS" ;
+			sed -i '1,2d' $mylog ;
+		fi
+
 		if [ $ftret != $ret ]; then
 			echo "bad return value: ft_nm->$ftret - nm->$ret" >> $mylog ; fi
 		count=$(wc -c < $mylog)
