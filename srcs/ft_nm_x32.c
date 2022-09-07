@@ -16,13 +16,13 @@ static int buffer_nm(const Elf32_Ehdr *Ehdr, const Elf32_Shdr *Shdrt,
   for (int i = 1; i < symb_nb; i++) {
     if (Ssymtab[i].st_shndx > Ehdr->e_shnum &&
         !is_special_section_indice(Ssymtab[i].st_shndx))
-      return EXIT_FAILURE;
+      return error_wrap(OOPS_BAD_SYMTAB, root, output_buf);
     if (is_special_section_indice(Ssymtab[i].st_shndx) ||
         ELF32_ST_TYPE(Ssymtab[i].st_info) == STT_SECTION)
       continue;
     shstrtabndx = Shdrt[Ssymtab[i].st_shndx].sh_name;
     if (shstrtabndx > smax[SHSTRTAB] || Ssymtab[i].st_name > smax[STRTAB])
-      return EXIT_FAILURE;
+      return error_wrap(OOPS_BAD_STRTAB, root, output_buf);
     format_output(&root, Ssymtab[i].st_value, &Sstrtab[Ssymtab[i].st_name],
                   Ssymtab[i].st_info, Ssymtab[i].st_shndx,
                   &shstrtab[shstrtabndx], 32);
@@ -52,7 +52,7 @@ static int handle_symtab(const void *file, const Elf32_Ehdr *Ehdr,
       filesize < Shdrt[symtab].sh_offset + Shdrt[symtab].sh_size ||
       filesize <
           Shdrt[Ehdr->e_shstrndx].sh_offset + Shdrt[Ehdr->e_shstrndx].sh_size)
-    return EXIT_FAILURE;
+    return oops_error(OOPS_BAD_SYMTAB);
 
   Sstrtab = (char *)(file + Shdrt[strtab].sh_offset);
   Sshstrtab = (char *)(file + Shdrt[Ehdr->e_shstrndx].sh_offset);
@@ -72,25 +72,34 @@ static int handle_symtab(const void *file, const Elf32_Ehdr *Ehdr,
 int ft_nm_x32(const void *file, size_t filesize) {
   Elf32_Ehdr Ehdr;
   Elf32_Shdr *Shdrt;
-  int symtab = -1;
+  int symtab = -1, ret;
 
-  if (filesize < sizeof(Ehdr)) return EXIT_FAILURE;
+  if (filesize < sizeof(Ehdr)) return oops_error(OOPS_NOTELF);
   ft_memcpy(&Ehdr, file, sizeof(Ehdr));
   if (!Ehdr.e_shnum || !Ehdr.e_shoff || Ehdr.e_version == EV_NONE ||
       filesize < Ehdr.e_shoff + (sizeof(*Shdrt) * Ehdr.e_shnum) ||
       Ehdr.e_shentsize != sizeof(*Shdrt))
-    return EXIT_FAILURE;
+    return oops_error(OOPS_BAD_ELF);
 
   /* print_Ehdr(&Ehdr); */
   Shdrt = (Elf32_Shdr *)(file + Ehdr.e_shoff);
 
-  for (int i = 0; i < Ehdr.e_shnum && symtab == -1; i++) {
+  if (Shdrt[0].sh_size != 0 && Shdrt[0].sh_offset != 0)
+    return oops_error(OOPS_BAD_SHDR);
+  if (Ehdr.e_shstrndx >= Ehdr.e_shnum ||
+      Shdrt[Ehdr.e_shstrndx].sh_type != SHT_STRTAB) {
+    oops_error(OOPS_BAD_SYMTAB);
+    return EXIT_SUCCESS;
+  }
+  for (int i = 0; i < Ehdr.e_shnum; i++) {
+    if (Shdrt[i].sh_name > Shdrt[Ehdr.e_shstrndx].sh_size)
+      return oops_error(OOPS_BAD_SHDR);
     if (Shdrt[i].sh_type == SHT_SYMTAB) symtab = i;
     /* print_Shdr(&(Shdrt[i]), i); */
   }
   if (symtab > -1)
-    handle_symtab(file, &Ehdr, Shdrt, symtab, filesize);
+    ret = handle_symtab(file, &Ehdr, Shdrt, symtab, filesize);
   else
-    return EXIT_FAILURE;
-  return EXIT_SUCCESS;
+    return oops_error(OOPS_BAD_SYMTAB);
+  return ret;
 }

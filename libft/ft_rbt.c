@@ -12,7 +12,8 @@ void destroy_rbt(t_rbt *node) {
 void print_rbt_inorder(t_rbt *node) {
   if (node) {
     print_rbt_inorder(node->left);
-    printf("%s", (char *)node->value);
+    write(STDOUT_FILENO, (char *)node->value, ft_strlen((char *)node->value));
+    /* printf("%s", (char *)node->value); */
     print_rbt_inorder(node->right);
   }
 }

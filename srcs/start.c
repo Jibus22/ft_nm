@@ -52,12 +52,13 @@ static int ft_nm(int ac, char *av, int j) {
   if ((fd = open(av, O_RDONLY)) == -1)
     return exit_nm(EXIT_FAILURE, fd, NULL, 0, av, "No such file\n");
   if (fstat(fd, &statbuf) == -1)
-    return exit_nm(EXIT_FAILURE, fd, NULL, 0, NULL, NULL);
+    return exit_nm(EXIT_FAILURE, fd, NULL, 0, NULL, "fstat() failed\n");
   if (statbuf.st_size < 16)
-    return exit_nm(EXIT_FAILURE, fd, NULL, 0, NULL, NULL);
+    return exit_nm(EXIT_FAILURE, fd, NULL, 0, NULL,
+                   "file format not recognized\n");
   if ((file = mmap(0, statbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0)) ==
       MAP_FAILED)
-    return exit_nm(EXIT_FAILURE, fd, NULL, 0, NULL, NULL);
+    return exit_nm(EXIT_FAILURE, fd, NULL, 0, NULL, "mmap() failed\n");
   if (check_elf_ident(file, &arch) > 0)
     return exit_nm(EXIT_FAILURE, fd, file, statbuf.st_size, av,
                    "file format not recognized\n");

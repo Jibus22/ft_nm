@@ -20,6 +20,22 @@
 #define STRTAB 0
 #define SHSTRTAB 1
 
+#define OOPS_SIZE 48
+
+typedef enum {
+  OOPS_UND = 0,
+  OOPS_NOTELF,
+  OOPS_NOCAVE,
+  OOPS_BAD_ARG_NB,
+  OOPS_BAD_ELF,
+  OOPS_NO_LOAD,
+  OOPS_BAD_PHDR,
+  OOPS_BAD_SHDR,
+  OOPS_BAD_SYMTAB,
+  OOPS_BAD_STRTAB,
+  OOPS_NB,
+} e_oops;
+
 /* tuple to link section name with nm symbol type */
 typedef struct {
   char nmType;
@@ -62,5 +78,9 @@ void format_output(t_rbt **root, unsigned long addr, const char *symname,
 int is_special_section_indice(uint16_t section_index);
 unsigned int rbt_to_buf(t_rbt *node, char *output_buf, unsigned int ret);
 bool getargs(e_arg env);
+
+/* error.c */
+int oops_error(unsigned int err);
+int error_wrap(unsigned int err, t_rbt *root, char *output_buf);
 
 #endif

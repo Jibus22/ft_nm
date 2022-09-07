@@ -58,6 +58,7 @@ print_help () {
 
 run_comparison () {
 	local arg="$1"
+	local err_nb=0
 
 	if [ "$1" == "-a" -o "$1" == "-g" -o "$1" == "-u" -o \
 		"$1" == "-r" -o "$1" == "-p" ]; then
@@ -93,8 +94,10 @@ run_comparison () {
 			rm $mylog $ft_res $res;
 		else
 			echo -e "${red}KO! ❌ ${blue} check this-> ${white}$mylog${reset}";
+			((err_nb=err_nb+1));
 		fi
 	done
+	echo "$err_nb errors."
 }
 
 rm -f $LOG*.txt
